@@ -3,7 +3,7 @@ $tRes=false;
 $list = Array (
 "tester0" => "test",
 "user1" => "user"
-);
+); // move array to pseudo php
 IF (ISSET($_POST['str'])) {
 	$data = $_POST['str'];
 	list($user, $pass, $uid) = explode(":", $data);
