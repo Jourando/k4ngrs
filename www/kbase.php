@@ -3,7 +3,7 @@
 IF (ISSET($_POST['str'])) {
 	$ep=$_POST['str'];
 	if (($ep=='add') || ($ep=='del') || ($ep=='edit') || ($ep=='list') || ($ep=='show') || ($ep=='hide')) {
-		
+		// показывать таблицу, переданную JSON'ом
 	} else {
 		echo "keybase service is ready";
 	}
