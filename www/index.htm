@@ -1,0 +1,390 @@
+<!DOCTYPE HTML>
+<HTML>
+<HEAD>
+<Title>Hello</Title>
+<style>
+html {cursor: none;}
+body {background: #000; color: #0B0; cursor: none;}
+a {color: #0B0; text-decoration: none;}
+div {background: #000; border: none; color: #0B0;border-image-width: 0;box-shadow: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none;}
+div:focus {border: none;border-image-width: 0;box-shadow: none;outline-color: #000;}
+div.hBlock {width: 100%; height: 100%; padding: 0px; margin: 0px; border: none; display: none; z-index: 3;}
+div.vBlock {width: 100%; height: 100%; padding: 0px; margin: 0px; border: none; display: table; z-index: 3; text-align: center; vertical-align: middle;}
+div.inBlock {width: 828px; height: 408px; margin: auto; border: 1px solid #0B0;}
+div.in2Block {width: 820px; height: 400px; margin: 3px; border: 1px solid #0B0; position: absolute; text-align: left;}
+div.norm {display: inline-block; background: #000; color: #0B0; white-space: nowrap; overflow: hidden;}
+div.sel {display: inline-block; background: #CCC; color: #000; white-space: nowrap; overflow: hidden;}
+div.simple {display: inline-block; background: #000; color: #CCC; text-align: center; width: 12px;}
+</style>
+<script>
+var glob = 'none';
+var s;
+var cpName = 'main';
+var cpCountX = 1;
+var cpCountY = 1;
+var maxRec=4;
+var gd;
+function setExpDate(expr) {
+var today = new Date();
+today.setTime(today.getTime());
+if(expr){
+  expr = expr * 1000 * 60 * 60 * 24;
+} else {expr = 0;}
+var expires_date = new Date( today.getTime() + (expr) );
+return expires_date.toGMTString();
+}
+function setCookie (name, value, expires, path, domain, secure) {
+	((expires) ? expires=setExpDate(expires) : 0);
+    document.cookie = name + "=" + escape(value) +
+        ((expires) ? "; expires=" + expires : "") +
+        ((path) ? "; path=" + path : "") +
+        ((domain) ? "; domain=" + domain : "") +
+        ((secure) ? "; secure" : "");
+}
+function getCookie(name) {
+	var cookie = " " + document.cookie;
+	var search = " " + name + "=";
+	var setStr = null;
+	var offset = 0;
+	var end = 0;
+	if (cookie.length > 0) {
+		offset = cookie.indexOf(search);
+		if (offset != -1) {
+			offset += search.length;
+			end = cookie.indexOf(";", offset)
+			if (end == -1) {
+				end = cookie.length;
+			}
+			setStr = unescape(cookie.substring(offset, end));
+		}
+	}
+	return(setStr);
+}
+function fluc(tms, tmp) {
+var te = new XMLHttpRequest();
+tms='str='+encodeURIComponent(tms);
+te.open('GET', 'fluc.php?'+tms, true);
+te.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+te.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+te.send();
+te.onreadystatechange = function() {
+  if ((this.readyState > 3 ) && (this.status == 200)) {
+	setCookie('dim', this.responseText, 1);
+  }
+}
+}
+function getCon(url, str, cs) {
+var p1;
+var xhr = new XMLHttpRequest();
+xhr.open('POST', url, true);
+str='str='+encodeURIComponent(str);
+xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+xhr.send(str);
+xhr.onreadystatechange = function() {
+  if (this.readyState != 4) return;
+
+  // по окончании запроса доступны:
+  // status, statusText
+  // responseText, responseXML (при content-type: text/xml)
+
+  if (this.status != 200) {
+    // обработать ошибку
+    document.getElementById(cs+'t').innerHTML=url+'>> Error: ' + (this.status ? this.statusText : '. Request failed') + '. Bad command or filename.<BR>Please, retry: ';
+	// --- если 404, исправить url на обработчик ошибок --- //
+    return;
+  } else {
+	if (url=='pbase.php') {
+		p1 = this.responseText;
+		if (p1.indexOf("[")>0) {
+			p1=p1.slice(p1.indexOf("[")+1, p1.length-1);
+			var dim = fluc(p1, 1);
+			setCookie('xid', p1, 1);
+			p1 = '&lt;&lt; login accepted<br>input keyword:';
+		} else { p1='&lt;&lt; error! login was not accepted!<br>please, retry:'; }
+		document.getElementById(cs+'t').innerHTML=p1;
+		glob='none';
+	} else if (url=='kbase.php') {
+		document.getElementById(cs+'t').innerHTML=url+'>> '+this.responseText+'<br>appoint an action:';
+	} else {
+		document.getElementById(cs+'t').innerHTML=url+'>> '+this.responseText+'<br>input keyword:';
+	}
+  
+  }
+}
+}
+</script>
+<script>
+  function clearSelection() {
+    if (window.getSelection) {
+      window.getSelection().removeAllRanges();
+    } else {
+      document.selection.empty();
+    }
+  }
+function doNothing() {
+}
+</script>
+</HEAD>
+<BODY Onload="document.getElementById('str1d').focus();" onselectstart="return false" onmousedown="return false" ondblclick="return false" oncontextmenu="return false">
+<script>
+var s=1;
+var tstring = '';
+function runScript(e, a) {
+//	var textBox = getObject('txtChar');
+	var charCode = (e.which) ? e.which : e.keyCode;
+    if (charCode == 13) {
+		var div1 = document.createElement('div');
+		if (a != 'exit') {
+			s=s+1;
+			var tb = 'str'+s;
+			var div1 = document.createElement('div');
+			div1.id=tb;
+			div1.style.display='block';
+			div1.innerHTML='<span id='+tb+'t></span> <div contenteditable="true" style="display: inline-block" onkeypress="return runScript(event, this.innerText)" id='+tb+'d></div>';
+			document.body.appendChild(div1);
+			document.getElementById(tb+'d').focus();
+			if (glob=='none') {
+				if (a == 'base') {document.getElementById(tb+'t').innerHTML='select base name:'; glob='sb';}
+				if (a == 'auth') {document.getElementById(tb+'t').innerHTML='type uin:'; glob='un';}
+				if (a == 'globstate') {document.getElementById(tb+'t').innerHTML='>> '+glob+'<br>input keyword:';}
+				if (a == 'static') {document.getElementById(tb+'t').innerHTML='>> static mode ON<br>input keyword:';}
+				if (a == 'dynamic') {document.getElementById(tb+'t').innerHTML='>> static mode OFF<br>input keyword:';}
+			} else if (glob == 'sb') {
+				if (a == 'globstate') {document.getElementById(tb+'t').innerHTML='>> '+glob+'<br>select base name:';}
+				else if (a == 'base') { doNothing(); }
+				else if (a == 'auth') { doNothing(); }
+				else if (a == 'setstring') {document.getElementById(tb+'t').innerHTML='>> reading $var<br>input value:'; glob='val';}
+				else if (a == 'clsstring') {document.getElementById(tb+'t').innerHTML='>> cleaning $var<br>>> now $var is empty<br>input keyword:'; tstring='';}
+				else if ((a == 'back') || (a == 'exit')) {document.getElementById(tb+'t').innerHTML='>> base unselected<br>input keyword:'; glob='none';}
+				else { getCon(a+'.php', tstring, tb); }
+			}
+			else if (glob == 'val') {
+				if (a == 'back') {document.getElementById(tb+'t').innerHTML='>> saving new $var<br>select base:'; glob='sb';}
+				else {tstring=a; document.getElementById(tb+'t').innerHTML='>> new value ($var) is equal to '+tstring+'<br>>> retype data if you want to change value<br>input value:';}
+			}
+			else if (glob == 'un') {
+				if (a == 'globstate') {document.getElementById(tb+'t').innerHTML='>> '+glob+'<br>input uin:';}
+				else if ((a == 'back') || (a == 'exit')) {document.getElementById(tb+'t').innerHTML='>> uin skipped<br>input keyword:'; glob='none';}
+				else if (a == 'base') { doNothing(); }
+				else if (a == 'auth') { doNothing(); }
+				else { getCon('pbase.php', a, tb); }
+			}
+			
+		} else {
+			div1.innerHTML='<span>Finalization. All bases were disconnected.<br>Bye!</span>';
+			document.body.appendChild(div1);
+		}
+    return false;
+    } 
+	else if (charCode==38) {alert('up');}
+	else if (charCode==40) {alert('down');}
+}
+function keyScript(e) {
+	var charCode = (e.which) ? e.which : e.keyCode;
+    if (charCode==37) {
+		// alert('left');} // left
+		document.getElementById('ln'+cpCountY+'col'+cpCountX).className='norm';
+		if (cpCountX==1) {
+			cpCountX=5;
+		} else {
+			cpCountX=cpCountX-1;
+		}
+		document.getElementById('ln'+cpCountY+'col'+cpCountX).className='sel';
+	}
+	if (charCode==39) {
+		// alert('right');} // right
+		document.getElementById('ln'+cpCountY+'col'+cpCountX).className='norm';
+		if (cpCountX==5) {
+			cpCountX=1;
+		} else {
+			cpCountX=cpCountX+1;
+		}
+		document.getElementById('ln'+cpCountY+'col'+cpCountX).className='sel';
+	}
+	if (charCode==38) {
+		// alert('up');} // up
+		document.getElementById('ln'+cpCountY+'col'+cpCountX).className='norm';
+		if (cpCountY==1) {
+			cpCountY=1;
+		} else {
+			cpCountY=cpCountY-1;
+		}
+		document.getElementById('ln'+cpCountY+'col'+cpCountX).className='sel';
+	}
+	if (charCode==40) {
+		// alert('down');} // down
+		document.getElementById('ln'+cpCountY+'col'+cpCountX).className='norm';
+		if (cpCountY==maxRec) {
+			cpCountY=maxRec;
+		} else {
+			cpCountY=cpCountY+1;
+		}
+		document.getElementById('ln'+cpCountY+'col'+cpCountX).className='sel';
+	}
+	if (charCode==13) {
+		if (cpCountX !== 3) {
+			// новое окно с данными, иначе карта
+		}
+	}
+//	alert(charCode);
+}
+/*
+function getObject(obj) {
+	var theObj;
+	if (document.all) {
+		if (typeof obj=='string') { return document.all(obj);
+		} else { return obj.style; }
+	}
+	if (document.getElementById) {
+		if (typeof obj=='string') { return document.getElementById(obj);
+		} else { return obj.style; }
+	}
+	return null;
+}
+*/
+function wRedraw(elm1, elm2, tmxe) {
+var fps = 50; // 50 кадров в секунду
+var start = Date.now();
+var elem1 = document.getElementById(elm1);
+var elem2 = document.getElementById(elm2);
+var timer = setInterval(function() {
+	var timePassed = Date.now() - start;
+	if (timePassed >= tmxe) {clearInterval(timer); return;}
+	draw(timePassed, elem1, 8);
+	if (elem2) {
+		draw(timePassed, elem2, 0);
+	}
+}, 1000 / fps);
+}
+function draw(timePassed, el, addPx) {
+  el.style.width = (timePassed / 5 + addPx) + 'px';
+  el.style.height = (timePassed / 10 + addPx) + 'px';
+}
+
+
+
+function transfrm(aa, bb, cc) {
+var dd=aa;
+for (j=aa.length; j<cc; j++) {
+	dd=dd+bb;
+}
+return dd;
+}
+function DisplayKeyTab() {
+for (i=0; i<kName.length; i++) {
+	gd=document.getElementById('keys');
+	var div2 = document.createElement('div');
+	div2.id='ln'+i+'col1';
+	div2.className='norm';
+	div2.style.width="229px";
+	div2.innerHTML=kName[i];
+	var div3 = document.createElement('div');
+	div3.id='ln'+i+'col2';
+	div3.className='norm';
+	div3.style.width="222px";
+	div3.innerHTML=kPlace[i];
+	var div4 = document.createElement('div');
+	div4.id='ln'+i+'col3';
+	div4.className='norm';
+	div4.style.width="144px";
+	if ((kMap1[i] == '') || (kMap1[i] == 'none')) {
+		div4.innerHTML=transfrm('none', adChr, 20);
+	} else {
+		if (i==0) {
+			div4.innerHTML=transfrm(kMap1[i], adChr, 20);
+		} else {
+			div4.innerHTML='<a href=https://ingress.com/intel?ll='+kMap1[i]+'&z=17&pll='+kMap1[i]+' target=_blank>['+transfrm(kMap1[i], adChr, 18)+']</a>';
+		}
+	}
+	var div5 = document.createElement('div');
+	div5.id='ln'+i+'col4';
+	div5.className='norm';
+	div5.style.width="44px";
+	div5.innerHTML=kCount[i];
+	var div6 = document.createElement('div');
+	div6.id='ln'+i+'col5';
+	div6.className='norm';
+	div6.style.width="93px";
+	div6.innerHTML=kOwner[i];	
+	var div7 = document.createElement('div');
+	div7.className='simple';
+	div7.innerHTML=' | ';
+	var brk = document.createElement('br');
+	gd.appendChild(div2);
+	gd.appendChild(div7);
+	gd.appendChild(div3);
+	gd.appendChild(div7.cloneNode(true));
+	gd.appendChild(div4);
+	gd.appendChild(div7.cloneNode(true));
+	gd.appendChild(div5);
+	gd.appendChild(div7.cloneNode(true));
+	gd.appendChild(div6);
+	gd.appendChild(brk);
+}
+}
+var Tkeys = '{ "tk1":["key1", "place1", "map1", "1", "owner1", "c1"], "tk2": ["very-very long and unreadable string", "place2", "map2", "2", "owner2", "c2"], "tk3": ["key3", "place3", "map3", "3", "owner3", "c3"] }';
+var adChr='.';
+var kName = new Array();
+var kPlace = new Array();
+var kMap1 = new Array();
+var kMap2 = new Array();
+var kCount = new Array();
+var kOwner = new Array();
+var kContact = new Array();
+kName[0] = transfrm('keyname', adChr, 32);
+kPlace[0] = transfrm('place', adChr, 31);
+kMap1[0] = 'map';
+kMap2[0] = transfrm('map', adChr, 20);
+kCount[0] = transfrm('count', adChr, 6);
+kOwner[0] = transfrm('owner', adChr, 13);
+kContact[0] = transfrm('contacts', adChr, 20);
+kName[1] = transfrm('testkey1', adChr, 32);
+kPlace[1] = transfrm('Xplace', adChr, 31);
+kMap1[1]='none'
+kMap2[1] = transfrm(kMap1[1], adChr, 20);
+kCount[1] = transfrm('0', adChr, 6);
+kOwner[1] = transfrm('admin', adChr, 13);
+kContact[1] = transfrm('none', adChr, 20);
+var compx = JSON.parse(Tkeys);
+// alert(compx.tk1[2]);
+var k=0;
+for (tks in compx) {
+	k++;
+	kName[k]=transfrm(compx[tks][0], adChr, 32);
+	kPlace[k]=transfrm(compx[tks][1], adChr, 31);
+	kMap1[k]=compx[tks][2];
+	kMap2[k]=transfrm(compx[tks][2], adChr, 20);
+	kCount[k]=transfrm(compx[tks][3], adChr, 6);
+	kOwner[k]=transfrm(compx[tks][4], adChr, 13);
+	kContact[k]=transfrm(compx[tks][5], adChr, 20);
+}
+console.log(compx[tks].length);
+maxRec=kName.length-1;
+</script>
+<div>hello!</div>
+<div>ready to serve, master!</div>
+<div id=str1>input keyword: <div contenteditable="true" id=str1d style="display: inline-block" onkeydown="return runScript(event, this.innerText)"></div></div>
+<!-- <div id=str2 style="display: none">connecting... <div contenteditable="true" id=str2d style="display: inline-block" onkeypress="return runScript(event)"></div></div> -->
+<div class="vBlock" id="DBLX">
+	<div class="inBlock" id=in1b>
+		<div class="in2Block" id=in2b>
+		<div style="position: absolute; right: 1px; top: 1px; z-index: 5; width: 30px; height: 20px"><input type=text size=1 length=1 style="width: 30px; border: 0px solid #000; background: #000;" onkeydown="return keyScript(event)"></div>
+		<div style="position: absolute; right: 0px; top: 0px; z-index: 4; width: 100%; border: none; text-align: center;"><TT>---------------[SECTIONS]---------------</TT></div>
+		<TT><div id=keys style="display: block; margin-top: 20px;">
+<!--
+&nbsp;<div id=ln1col1 class=sel>keyname.........................</div> | <div id=ln1col2 class=norm>plase..........................</div>| <div id=ln1col3 class=norm>map.................</div>| <div id=ln1col4 class=norm>count.</div>| <div id=ln1col5 class=norm>owner........</div><br>
+&nbsp;<div id=ln2col1 class=norm>Dinamo FunGirl..................</div> | <div id=ln2col2 class=norm>Москва, ул Проходчиков, 17а...</div> | <div id=ln2col3 class=norm><a href=https://ingress.com/intel?ll=55.879633,37.725533&z=17&pll=55.879633,37.725533 target=_blank>55.879633,37.725533</a></div> | <div id=ln2col4 class=norm>0....</div> | <div id=ln2col5 class=norm>Joue.....</div><br>
+&nbsp;Ю.А.Гагарин..................... | Гагарин, плт. Гагарин......... | <a href=https://ingress.com/intel?ll=55.54389,34.985666&z=17&pll=55.54389,34.985666 target=_blank>55.54389,34.985666</a>. | 0.... | Joue.....<br>
+&nbsp;Гагарин с парашютом............. | Гагарин, плт. Гагарин......... | <a href=https://ingress.com/intel?ll=55.54394,34.985865&z=17&pll=55.54394,34.985865 target=_blank>55.54394,34.985865</a>. | 0.... | Joue.....<br>
+-->
+		</div></TT>
+		</div>
+	</div>
+</div>
+<script>
+DisplayKeyTab();
+document.getElementById('ln1col1').className='sel';
+</script>
+</BODY>
+</HTML>
